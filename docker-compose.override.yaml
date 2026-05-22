@@ -1,0 +1,11 @@
+services:
+  web:
+    command: flask --app run:flask_app run --host=0.0.0.0 --debug
+    volumes:
+      - .:/app
+    environment:
+      FLASK_DEBUG: 1
+  
+  celery_worker:
+    volumes:
+      - .:/app
