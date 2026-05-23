@@ -1,4 +1,4 @@
-# Flask, MySQL, SQLAlchemy, Celery, RabbitMQ, Redis
+# Flask, MySQL, SQLAlchemy, Celery, RabbitMQ, Redis, Nginx
 
 This is a basic (but foundational) Flask app you can use to build your own application based on it. It has necessary foundations for:
 
@@ -6,6 +6,8 @@ This is a basic (but foundational) Flask app you can use to build your own appli
 - SQLAlchemy `User` model with roles
 - User authentication (using `Flask-Login`)
 - Asynchronous background tasks (using Celery, RabbitMQ, and Redis)
+- Nginx as a reverse proxy to handle external requests, terminate traffic safely, and shield the underlying Flask application layer.
+- Fully containerized environment isolated cleanly through Docker Compose.
 
 ## Database Migration:
 
@@ -17,7 +19,7 @@ FLASK_ENV=local flask db migrate
 
 ## Deployment steps:
 
-Before pushing to your own repository (the one you `pull` from in your VPS):
+Before pushing to your production repository (the one you `pull` from in your VPS):
 
 1. Uncomment the `#.env` line in the `.gitignore`.
 
