@@ -49,3 +49,14 @@ The `docker-compose.override.yaml` file overrides the `web` service for local de
 > docker compose restart celery_worker
 > 
 > ```
+
+## Running tests
+
+A set of end-to-end tests is provided to verify the application routes and their full integration.
+
+> **Note:** These tests use a **blackbox testing** approach rather than standard isolated unit tests. This is crucial for our setup because isolated tests with mocked behavior might pass successfully even if the actual runtime integration (such as Celery worker database contexts) is broken.
+> The current Celery-related tests serve as a demonstration of how this approach works. You should modify or replace them as you develop your own application tasks.
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.test.yaml up --build --abort-on-container-exit tester
+```
