@@ -9,6 +9,15 @@ This is a basic (but foundational) Flask app you can use to build your own appli
 - Nginx as a reverse proxy to handle external requests, terminate traffic safely, and shield the underlying Flask application layer.
 - Fully containerized environment isolated cleanly through Docker Compose.
 
+## First-Time Database Setup
+
+Currently the database is already initialized for the purpose of demonstrating how the current models work. If you want a clean start, you can also delete the `migrations` directory. In that case you will need to initialize the database migration system again and generate your core schema tables before launching the app.
+
+```bash
+rm -rf migrations
+FLASK_ENV=local flask db init
+```
+
 ## Database Migration:
 
 To perform your database migrations locally (so that the migration files-which are part of your application files-will be pushed to your Git repository), run:
