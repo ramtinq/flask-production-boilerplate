@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 # Environment variables (Crucial to ignore for security)
-.env
-.env.local
+#.env
+#.env.local
 
 # Operating System files
 .DS_Store
