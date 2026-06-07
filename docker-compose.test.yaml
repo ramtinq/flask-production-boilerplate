@@ -2,14 +2,16 @@ services:
   # Intercept the web service and inject proper internal container routing
   web:
     environment:
-      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672//
-      - CELERY_BACKEND_URL=redis://redis:6379/0
+      FLASK_APP: run:flask_app
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672//
+      CELERY_BACKEND_URL: redis://redis:6379/0
 
   # Intercept the worker service and match the internal container routing
   celery_worker:
     environment:
-      - CELERY_BROKER_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672//
-      - CELERY_BACKEND_URL=redis://redis:6379/0
+      FLASK_APP: run:flask_app
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672//
+      CELERY_BACKEND_URL: redis://redis:6379/0
   tester:
     build: .
     volumes:

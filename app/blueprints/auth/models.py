@@ -4,11 +4,7 @@ from sqlalchemy import ForeignKey, String, Integer, Enum, JSON
 from typing import Any, List
 from enum import Enum as PyEnum
 
-from app import db
-
-class BaseModel(db.Model):
-    __abstract__ = True
-
+from app.models import BaseModel
 
 class UserRole(PyEnum):
     ADMIN = 'admin'
@@ -34,12 +30,3 @@ class User(BaseModel, UserMixin):
     
     def get_id(self): # for UserMixin to authenticate
         return str(self.id)
-    
-
-class CalculationResult(BaseModel):
-    __tablename__ = 'calculation_results'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    data: Mapped[Any] = mapped_column(JSON, nullable=False)
-
-    user: Mapped["User"] = relationship("User", back_populates="results")

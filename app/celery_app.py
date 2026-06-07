@@ -7,5 +7,9 @@ celery = Celery(
     backend=os.getenv("CELERY_BACKEND_URL"),
     broker_connection_retry_on_startup=True,
     broker_transport_options = {"max_retries": 10},
-    include=["tasks"]
+    include=[
+        "app.blueprints.core.tasks",
+        "app.blueprints.auth.tasks",
+        "app.blueprints.calculations.tasks"
+    ]
 )

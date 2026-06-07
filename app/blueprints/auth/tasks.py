@@ -1,16 +1,9 @@
-import time
 import random
-from models import CalculationResult
-from app import db, create_app
+from app.blueprints.calculations.models import CalculationResult
+from app.factory import create_app
 
-from celery_app import celery
-
-@celery.task
-def random_number(max_value):
-    print("\n----->Generating a random number...\n")
-    time.sleep(15)
-    return random.randint(0, max_value)
-
+from app.extensions import db
+from app.celery_app import celery
 
 def estimate_pi(num_samples: int) -> float:
 
@@ -29,12 +22,12 @@ def estimate_pi(num_samples: int) -> float:
     return 4.0 * inside_circle / num_samples
 
 
-@celery.task
+@celery.task(name="auth.compute_heavy_data")
 def compute_heavy_data(input_param):
     # Pure processing.
     return estimate_pi(input_param)
 
-@celery.task
+@celery.task(name="auth.store_result_to_db")
 def store_result_to_db(computed_data, user_id: int):
     print("\n----->Storing to db...\n")
     # explicitly designed to handle the database persistence

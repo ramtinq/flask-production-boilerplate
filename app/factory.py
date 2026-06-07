@@ -1,13 +1,7 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_login import LoginManager
-from flask_bcrypt import Bcrypt
-from flask_wtf import CSRFProtect
 import os
 import jwt
 from urllib.parse import quote_plus
-from utils import extract_app_token
 
 if os.getenv("FLASK_ENV") != "production":
     from dotenv import load_dotenv
@@ -16,10 +10,8 @@ if os.getenv("FLASK_ENV") != "production":
     else:
         load_dotenv()
 
-csrf: CSRFProtect = CSRFProtect()
-db: SQLAlchemy = SQLAlchemy()
-login_manager: LoginManager = LoginManager()
-
+from .extensions import db, migrate, login_manager, bcrypt, csrf
+from .utils import extract_app_token
 
 def create_app(is_worker:bool = False):
 
@@ -41,7 +33,7 @@ def create_app(is_worker:bool = False):
     #celery.conf.update(app.config)
 
     db.init_app(app)
-    Migrate(app, db)
+    migrate.init_app(app, db)
 
     if(is_worker):
         return app
@@ -49,15 +41,15 @@ def create_app(is_worker:bool = False):
     csrf.init_app(app)
 
     login_manager.init_app(app)
-    login_manager.login_view = 'user_login_get'
+    login_manager.login_view = 'auth.user_login_get'
 
-    from models import User
+    from app.blueprints.auth.models import User
 
     @login_manager.user_loader
     def load_user(uid):
         return db.session.get(User, int(uid))
     
-    bcrypt = Bcrypt(app)
+    bcrypt.init_app(app)
 
 
     @app.before_request
@@ -77,7 +69,13 @@ def create_app(is_worker:bool = False):
         except jwt.PyJWTError:
             return jsonify({"error": "Unauthorized action."}), 401
     
-    from routes import register_routes
-    register_routes(app, db, bcrypt)
+    from app.blueprints.core import core_bp
+    from app.blueprints.auth import auth_bp
+    from app.blueprints.calculations import calculations_bp
+
+    app.register_blueprint(core_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(calculations_bp)
+
 
     return app

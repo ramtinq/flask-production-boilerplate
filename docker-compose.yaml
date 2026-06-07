@@ -55,6 +55,8 @@ services:
   migrate:
     build: .
     env_file: .env
+    environment:
+      FLASK_APP: run:flask_app
     command: wait-for-it mysql:3306 -t 90 -- flask db upgrade
     depends_on:
       mysql:
@@ -62,6 +64,8 @@ services:
   web:
     build: .
     env_file: .env
+    environment:
+      FLASK_APP: run:flask_app
     depends_on:
       mysql:
         condition: service_healthy
@@ -74,8 +78,10 @@ services:
 
   celery_worker:
     build: .
-    command: celery -A celery_app.celery worker --loglevel=info
+    command: celery -A app.celery_app.celery worker --loglevel=info
     env_file: .env
+    environment:
+      FLASK_APP: run:flask_app
     depends_on:
       rabbitmq:
         condition: service_healthy
