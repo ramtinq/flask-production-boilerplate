@@ -26,24 +26,24 @@ def auth_client():
     username = f"tester_{uuid.uuid4().hex[:6]}"
     password = "StrongPassword123!"
 
-    reg_page = session.get(f"{BASE_URL}/register")
+    reg_page = session.get(f"{BASE_URL}/user/register")
     csrf_token = get_csrf_token(reg_page.text)
 
-    reg_res = session.post(f"{BASE_URL}/register", data={
+    reg_res = session.post(f"{BASE_URL}/user/register", data={
         "csrf_token": csrf_token,
         "username": username,
         "password": password,
         "password_confirmation": password
     })
 
-    assert "/login" in reg_res.url, (
-        f"Registration failed! The app didn't redirect to /login, it stayed on {reg_res.url}. "
+    assert "/user/login" in reg_res.url, (
+        f"Registration failed! The app didn't redirect to /user/login, it stayed on {reg_res.url}. "
     )
     
-    login_page = session.get(f"{BASE_URL}/login")
+    login_page = session.get(f"{BASE_URL}/user/login")
     login_csrf = get_csrf_token(login_page.text)
     
-    session.post(f"{BASE_URL}/login", data={
+    session.post(f"{BASE_URL}/user/login", data={
         "csrf_token": login_csrf,
         "username": username,
         "password": password
@@ -57,18 +57,18 @@ def auth_client():
 
 def test_public_routes_accessible(client):
     assert client.get(f"{BASE_URL}/").status_code == 200
-    assert client.get(f"{BASE_URL}/register").status_code == 200
-    assert client.get(f"{BASE_URL}/login").status_code == 200
+    assert client.get(f"{BASE_URL}/user/register").status_code == 200
+    assert client.get(f"{BASE_URL}/user/login").status_code == 200
 
 def test_protected_routes_block_unauthorized_users(client):
-    res = client.get(f"{BASE_URL}/dashboard")
+    res = client.get(f"{BASE_URL}/user/dashboard")
     assert "login" in res.url or res.status_code in [401, 403]
     
-    res_pi = client.get(f"{BASE_URL}/task/estimate-pi/10")
+    res_pi = client.get(f"{BASE_URL}/user/task/estimate-pi/10")
     assert "login" in res_pi.url or res_pi.status_code in [401, 403]
 
 def test_dashboard_accessible_when_logged_in(auth_client):
-    res = auth_client.get(f"{BASE_URL}/dashboard")
+    res = auth_client.get(f"{BASE_URL}/user/dashboard")
     assert res.status_code == 200
     assert "login" not in res.url
 
@@ -99,12 +99,12 @@ def test_random_number_background_task(client):
 # ==========================================
 
 def test_pi_estimation_chain_writes_to_ui(auth_client):
-    res_start = auth_client.get(f"{BASE_URL}/task/estimate-pi/5000")
+    res_start = auth_client.get(f"{BASE_URL}/user/task/estimate-pi/5000")
     assert res_start.status_code == 200
     
     pipeline_finished = False
     for _ in range(15):
-        res_calc = auth_client.get(f"{BASE_URL}/dashboard/calculation-results")
+        res_calc = auth_client.get(f"{BASE_URL}/user/dashboard/calculation-results")
         if "3." in res_calc.text: 
             pipeline_finished = True
             break

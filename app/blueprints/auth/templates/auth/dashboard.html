@@ -9,7 +9,7 @@
     <p>Your role: <strong>{{ current_user.role.value }}</strong></p>
     
     <br>
-    <a href="{{ url_for('user_calculation_results') }}">Calculation Results</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
+    <a href="{{ url_for('auth.user_calculation_results') }}">Calculation Results</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
 
 {% endblock %}
