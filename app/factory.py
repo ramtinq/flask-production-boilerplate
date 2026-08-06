@@ -11,7 +11,7 @@ if os.getenv("FLASK_ENV") != "production":
         load_dotenv()
 
 from .extensions import db, migrate, login_manager, bcrypt, csrf
-from .utils import extract_app_token
+from .utils import extract_app_token, read_secret
 
 def create_app(is_worker:bool = False):
 
@@ -19,11 +19,11 @@ def create_app(is_worker:bool = False):
     
     app = Flask(__name__, template_folder='templates')
 
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
+    app.config["SECRET_KEY"] = read_secret("secret_key", "SECRET_KEY")
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         f"mysql://{os.getenv('MYSQL_USER')}:"
-        f"{quote_plus(os.getenv('MYSQL_PASSWORD'))}"
+        f"{quote_plus(read_secret('mysql_password', 'MYSQL_PASSWORD'))}"
         f"@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT')}/"
         f"{os.getenv('MYSQL_DB')}"
     )
