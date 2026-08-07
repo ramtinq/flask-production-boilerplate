@@ -64,6 +64,7 @@ services:
     secrets:
       - mysql_password
       - secret_key
+      - app_verification_secret
     command: wait-for-it mysql:3306 -t 90 -- flask db upgrade
     depends_on:
       mysql:
@@ -76,6 +77,7 @@ services:
     secrets:
       - mysql_password
       - secret_key
+      - app_verification_secret
     depends_on:
       mysql:
         condition: service_healthy
@@ -95,6 +97,7 @@ services:
     secrets:
       - mysql_password
       - secret_key
+      - app_verification_secret
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -108,8 +111,10 @@ volumes:
 
 secrets:
   mysql_password:
-    file: ./secrets/mysql_password.txt
+    file: ./secrets/mysql_password
   mysql_root_password:
-    file: ./secrets/mysql_root_password.txt
+    file: ./secrets/mysql_root_password
   secret_key:
-    file: ./secrets/secret_key.txt
+    file: ./secrets/secret_key
+  app_verification_secret:
+    file: ./secrets/app_verification_secret

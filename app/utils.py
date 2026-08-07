@@ -2,11 +2,15 @@ from sqlalchemy.sql import Executable
 import os
 
 def read_secret(secret_name, env_fallback=None):
-    """Read from /run/secrets/ in production, fall back to env var for local dev."""
+    """Read from /run/secrets/ in production, fall back to env var ONLY for local dev."""
     secret_path = f"/run/secrets/{secret_name}"
-    if os.path.isfile(secret_path):
-        with open(secret_path, "r") as f:
-            return f.read().strip()
+    
+    if os.getenv("FLASK_ENV") in ["docker", "production"]:
+        if os.path.isfile(secret_path):
+            with open(secret_path, "r") as f:
+                return f.read().strip()
+        raise FileNotFoundError(f"Secret file not found: {secret_path}")
+    
     return os.getenv(env_fallback or secret_name)
 
 def extract_app_token(header_value: str) -> str | None:

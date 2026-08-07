@@ -98,7 +98,11 @@ def user_estimate_pi(samples):
         )
     # (result of each function will be passed to thefirst argument of the next one)
 
-    workflow.apply_async()
-    return jsonify({"message": "Pipeline started"})
+    task = workflow.apply_async()
+
+    return jsonify({
+        "message": "Pipeline started",
+        "task_id": task.id
+    })
 
 

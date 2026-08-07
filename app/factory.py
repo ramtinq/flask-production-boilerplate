@@ -3,7 +3,7 @@ import os
 import jwt
 from urllib.parse import quote_plus
 
-if os.getenv("FLASK_ENV") != "production":
+if os.getenv("FLASK_ENV") not in ["docker", "production"]:
     from dotenv import load_dotenv
     if os.getenv("FLASK_ENV") == 'local':
         load_dotenv('.env.local', override=True)
@@ -59,6 +59,10 @@ def create_app(is_worker:bool = False):
         if not request.path.startswith('/api'):
             return
 
+        app.config["APP_VERIFICATION_SECRET"] = read_secret(
+            "app_verification_secret",
+            "APP_VERIFICATION_SECRET"
+        )
         client_token = extract_app_token(request.headers.get("X-Auth", ""))
 
         if not client_token:

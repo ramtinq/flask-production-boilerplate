@@ -16,12 +16,13 @@ services:
     build: .
     volumes:
       - ./tests:/app/tests
+      - ./scripts:/app/scripts
     env_file: .env
     environment:
       - BASE_URL=http://web:5000
     command: >
       sh -c "pip install --no-cache-dir pytest requests beautifulsoup4 && 
-             wait-for-it web:5000 -t 120 -- pytest -v -s tests/"
+             wait-for-it web:5000 -t 120 -- python -m pytest -v -s /app/tests"
     depends_on:
       web:
         condition: service_started

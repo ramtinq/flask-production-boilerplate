@@ -1,6 +1,5 @@
 import os
 from celery import Celery, Task
-from .utils import read_secret
 
 _broker_url = (
     f"amqp://{os.getenv('RABBITMQ_USER')}:{os.getenv('RABBITMQ_PASS')}"

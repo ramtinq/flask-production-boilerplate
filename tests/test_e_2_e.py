@@ -4,6 +4,7 @@ import uuid
 import pytest
 import requests
 from bs4 import BeautifulSoup
+from scripts.secret_utils import generate_app_verification_token
 
 BASE_URL = os.getenv("BASE_URL", "http://web:5000")
 
@@ -15,6 +16,10 @@ def get_csrf_token(html_content):
 # ==========================================
 # FIXTURES (Setup State)
 # ==========================================
+
+@pytest.fixture
+def app_token():
+    return generate_app_verification_token()
 
 @pytest.fixture(scope="session")
 def client():
@@ -60,6 +65,27 @@ def test_public_routes_accessible(client):
     assert client.get(f"{BASE_URL}/user/register").status_code == 200
     assert client.get(f"{BASE_URL}/user/login").status_code == 200
 
+
+def test_api_endpoint_accessible_with_valid_token(client, app_token):
+    response = client.get(
+        f"{BASE_URL}/api/liveness",
+        headers={
+            "X-Auth": f"Bearer {app_token}"
+        }
+    )
+
+    assert response.status_code == 200
+
+def test_api_endpoint_not_accessible_with_invalid_token(client):
+    response = client.get(
+        f"{BASE_URL}/api/liveness",
+        headers={
+            "X-Auth": "Bearer some_invalid_token"
+        }
+    )
+
+    assert response.status_code == 401
+
 def test_protected_routes_block_unauthorized_users(client):
     res = client.get(f"{BASE_URL}/user/dashboard")
     assert "login" in res.url or res.status_code in [401, 403]
@@ -98,14 +124,17 @@ def test_random_number_background_task(client):
 # TEST DOMAIN: Celery Chains & DB Writes
 # ==========================================
 
-def test_pi_estimation_chain_writes_to_ui(auth_client):
+def test_pi_estimation_chain_succeeds(auth_client):
     res_start = auth_client.get(f"{BASE_URL}/user/task/estimate-pi/5000")
     assert res_start.status_code == 200
-    
+
+    task_id = res_start.json().get("task_id")
+    assert task_id is not None
+
     pipeline_finished = False
     for _ in range(15):
-        res_calc = auth_client.get(f"{BASE_URL}/user/dashboard/calculation-results")
-        if "3." in res_calc.text: 
+        res_calc = auth_client.get(f"{BASE_URL}/task/result/{task_id}")
+        if res_calc.json().get("state") == "SUCCESS":
             pipeline_finished = True
             break
         time.sleep(1)
