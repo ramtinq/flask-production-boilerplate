@@ -58,5 +58,5 @@ A set of end-to-end tests is provided to verify the application routes and their
 > The current Celery-related tests serve as a demonstration of how this approach works. You should modify or replace them as you develop your own application tasks.
 
 ```bash
-docker compose -f docker-compose.yaml -f docker-compose.test.yaml up --build --abort-on-container-exit tester
+docker compose down -v && docker compose -f docker-compose.yaml -f docker-compose.test.yaml up --build --abort-on-container-exit tester
 ```
